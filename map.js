@@ -8,7 +8,54 @@ var L,
     shelters = false,
     presets = [
         {
-            displayName: "War",
+            displayName: "Zombie Apocalypse - Lone wolf",
+            targetValues: {
+                policeStations: (value) => {
+                    return value * 25;
+                },
+                shelters: (value) => {
+                    //return 100 - value * 50;
+                    return 0;
+                },
+                population: (value) => {
+                    return value * -0.05
+                }
+            }
+        },
+        {
+            displayName: "Zombie Apocalypse - Team Player",
+            targetValues: {
+                policeStations: (value) => {
+                    return value * 7;
+                },
+                shelters: (value) => {
+                    return value * 1;
+                },
+                population: (value) => {
+                    return value * 0.001;
+                }
+            }
+        },
+        {
+            displayName: "Zombie Apocalypse - City Lurker",
+            targetValues: {
+                policeStations: (value) => {
+                    return value * 10;
+                },
+                shelters: (value) => {
+                    return 0;
+                },
+                population: (value) => {
+                    return value * 0.0005;
+                }
+            }
+        },
+        {
+            displayName: "Custom",
+            targetValues: {}
+        },
+        {
+            displayName: "War (not working)",
             targetValues: {
                 policeStations: (value) => {
                     return value * 5;
@@ -19,36 +66,7 @@ var L,
             }
         },
         {
-            displayName: "Zombie Apocalypse - Lone wolf",
-            targetValues: {
-                policeStations: (value) => {
-                    return value * 25;
-                },
-                shelters: (value) => {
-                    //return 100 - value * 50;
-                    return 0;
-                },
-                population: (value)=>{
-                    return value * -0.05
-                }
-            }
-        },
-        {
-            displayName: "Zombie Apocalypse - Samarbeterino",
-            targetValues: {
-                policeStations: (value) => {
-                    return value * 7;
-                },
-                shelters: (value) => {
-                    return value * 1;
-                },
-                population: (value)=>{
-                    return value * 0.002
-                }
-            }
-        },
-        {
-            displayName: "Nuclear War",
+            displayName: "Nuclear War (not working)",
             targetValues: {
                 policeStations: (value) => {
                     return value * 0;
@@ -117,7 +135,8 @@ var mapInit = false;
 
 if (mapInit == false) {
     document.getElementById("next").onclick = function() {
-        initMap();
+        document.getElementById("status").innerHTML = "Processing... Check console for progress";
+        setTimeout(initMap, 1000);
     };
 }
 else {}
@@ -125,7 +144,6 @@ else {}
 var maxScore = 200;
 
 function initMap() {
-    document.getElementById("status").innerHTML = "Processing...";
     if (map != undefined) { //Fisk
         map.off();
         map.remove();
@@ -134,6 +152,9 @@ function initMap() {
     var map = L.map('map').setView([53, 10], 4.5);
     osm_overlay.addTo(map);
 
+
+    resolutionY = 0.5 / document.getElementById("resolution").value;
+    resolutionX = 0.2 / document.getElementById("resolution").value;
     /*if (police == true) {
         for (var y = box.miny; y < box.maxy; y += resolutionY) {
             console.log(Math.floor(((y - 10) / 15) * 100) + "%");
@@ -178,6 +199,11 @@ function initMap() {
 
 
     var preset = presets[document.getElementById("presetSelect").selectedIndex];
+    if (preset.displayName == "Custom") {
+        preset.targetValues.policeStations = eval("(function(value){return " + document.getElementById("stations").value + "})");
+        preset.targetValues.shelters = eval("(function(value){return " + document.getElementById("shelters").value + "})");
+        preset.targetValues.population = eval("(function(value){return " + document.getElementById("population").value + "})");
+    }
 
     for (var y = box.miny; y < box.maxy; y += resolutionY) {
         console.log(Math.floor(((y - 10) / 15) * 100) + "%");
@@ -202,15 +228,15 @@ function initMap() {
             score += preset.targetValues.shelters(numShelters);
 
             var people = 0;
-            for(var i = 0; i < population.length; i++){
-                if(calcDistance(x, y, population[i].coordinates[1], population[i].coordinates[0])<0.5){
+            for (var i = 0; i < population.length; i++) {
+                if (calcDistance(x, y, population[i].coordinates[1], population[i].coordinates[0]) < 0.5) {
                     people += population[i].pop;
                 }
             }
             score += preset.targetValues.population(people);
 
             //console.log(color + " -- " + (255 - color));
-            if(score==0||score==100) continue;
+            if (score == 0 || score == 100) continue;
             var color = Math.floor(((score + maxScore) / (maxScore * 2)) * 255);
             if (color < 0) {
                 color = 0;
@@ -218,8 +244,8 @@ function initMap() {
             else if (color > 255) {
                 color = 255;
             }
-            
-            
+
+
             //color = Math.floor(255 * (numShelters / 10));
             var circle = L.rectangle([[x, y], [x + resolutionX, y + resolutionY]], {
                 //color: rgbToHex(255-color, color, 0),
@@ -260,13 +286,12 @@ var b = 0;
     document.getElementById("progress").innerHTML="Processing: " + (b/points)*100 + "%";
 }, 500);*/
 
-var resolutionY = 0.5 / 2;
-var resolutionX = 0.2 / 2;
+var resolutionY = 0.5 / document.getElementById("resolution").value;
+var resolutionX = 0.2 / document.getElementById("resolution").value;
 
 //clearInterval(showProgress);
 
 //console.log(policeStations[0].location.gps.split(",")[0]);
-console.log(stations);
 
 function componentToHex(c) {
     var hex = c.toString(16);

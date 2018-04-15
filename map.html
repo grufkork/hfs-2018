@@ -8,16 +8,44 @@
         #map {
             height: 90vh;
         }
+        span{
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            border: 1px solid #d0d0d0;
+            padding:5px;
+            font-family: monospace;
+        }
     </style>
+    <title>Preppappen</title>
     <meta charset="utf-8">
     <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
 </head>
 
 <body>
     <div id="map"><h1 id="status">Loading...</h1></div>
-    <select id="presetSelect"></select>
-    <button id="next">Proceed</button>
-    <p></p>
+    <select id="presetSelect"></select><br>
+    Resolution: <input type="number" min="1" id="resolution" value = "2" style="width:3em">
+    <button id="next">Proceed</button><br><br>
+    
+    <b>For custom preset:</b><br>
+    <table>
+        <tr>
+            <td>Population</td>
+            <td><input id="population"></td>
+        </tr>
+        <tr>
+            <td>Shelters</td>
+            <td><input id="shelters"></td>
+        </tr>
+        <tr>
+            <td>Police Stations</td>
+            <td><input id="stations"></td>
+        </tr>
+    </table><br>
+    
+    A valid function to calculate a score can look like this: <br><br>
+    &nbsp;&nbsp;<span>value * 5 + 3</span><br><br>
+    Where value is the number of people, shelters or stations. The input is run through eval() so you can input any Javascript you want. While it exposes a security risk, it gives great flexibility.
 </body>
 
 
